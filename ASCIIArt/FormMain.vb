@@ -38,7 +38,7 @@
         If e.Data.GetFormats().Contains("FileDrop") Then
             Dim files() As String = CType(e.Data.GetData("FileDrop"), String())
             If files.Count = 1 AndAlso files(0).Contains(".") Then
-                Dim ext As String = files(0).Split("."c)(1).Replace("jpg", "jpeg")
+                Dim ext As String = files(0).ToLower().Split("."c)(1).Replace("jpg", "jpeg")
                 If (From p In GetType(Imaging.ImageFormat).GetProperties() Select p.Name.ToLower()).Contains(ext) Then
                     e.Effect = DragDropEffects.Copy
                 End If
