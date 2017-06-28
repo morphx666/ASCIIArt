@@ -117,15 +117,15 @@ Partial Class FormMain
             Or System.Windows.Forms.AnchorStyles.Left) _
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.AsciiArtCtrl.BackColor = System.Drawing.Color.Black
-        Me.AsciiArtCtrl.Bitmap = Nothing
-        Me.AsciiArtCtrl.CanvasSize = New System.Drawing.Size(80, 25)
-        Me.AsciiArtCtrl.Charset = ASCIIArt.ASCIIArtCtrl.Charsets.Standard
-        Me.AsciiArtCtrl.ColorMode = ASCIIArt.ASCIIArtCtrl.ColorModes.GrayScale
-        Me.AsciiArtCtrl.Font = New System.Drawing.Font("Lucida Console", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.AsciiArtCtrl.GrayScaleMode = ASCIIArt.ASCIIArtCtrl.GrayscaleModes.Accuarte
+        Me.AsciiArtCtrl.I2A.Bitmap = Nothing
+        Me.AsciiArtCtrl.I2A.CanvasSize = New System.Drawing.Size(80, 25)
+        Me.AsciiArtCtrl.I2A.Charset = Image2Ascii.Charsets.Standard
+        Me.AsciiArtCtrl.I2A.ColorMode = Image2Ascii.ColorModes.GrayScale
+        Me.AsciiArtCtrl.I2A.Font = New System.Drawing.Font("Lucida Console", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.AsciiArtCtrl.I2A.GrayScaleMode = Image2Ascii.GrayscaleModes.Accuarte
         Me.AsciiArtCtrl.Location = New System.Drawing.Point(12, 52)
         Me.AsciiArtCtrl.Name = "AsciiArtCtrl"
-        Me.AsciiArtCtrl.ScanMode = ASCIIArt.ASCIIArtCtrl.ScanModes.Fast
+        Me.AsciiArtCtrl.I2A.ScanMode = Image2Ascii.ScanModes.Fast
         Me.AsciiArtCtrl.Size = New System.Drawing.Size(868, 529)
         Me.AsciiArtCtrl.TabIndex = 0
         '
