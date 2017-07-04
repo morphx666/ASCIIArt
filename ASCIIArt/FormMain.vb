@@ -93,58 +93,6 @@
                               End If
                           End Sub
 
-        Dim HexColorToArray = Function(hexColor As String) As Integer()
-                                  Return {Integer.Parse(hexColor.Substring(0, 2), Globalization.NumberStyles.HexNumber),
-                                          Integer.Parse(hexColor.Substring(2, 2), Globalization.NumberStyles.HexNumber),
-                                          Integer.Parse(hexColor.Substring(4, 2), Globalization.NumberStyles.HexNumber)}
-                              End Function
-
-        Dim ToConsoleColor = Function(c As Color) As ConsoleColor
-                                 Dim d As Double
-                                 Dim minD As Double = Double.MaxValue
-                                 Dim bestResult As ConsoleColor
-                                 Dim ccRgb() As Integer = Nothing
-
-                                 For Each cc As ConsoleColor In [Enum].GetValues(GetType(ConsoleColor))
-                                     Select Case cc
-                                         Case ConsoleColor.Black : ccRgb = HexColorToArray("000000")
-                                         Case ConsoleColor.DarkBlue : ccRgb = HexColorToArray("000080")
-                                         Case ConsoleColor.DarkGreen : ccRgb = HexColorToArray("008000")
-                                         Case ConsoleColor.DarkCyan : ccRgb = HexColorToArray("008080")
-                                         Case ConsoleColor.DarkRed : ccRgb = HexColorToArray("800000")
-                                         Case ConsoleColor.DarkMagenta : ccRgb = HexColorToArray("800080")
-                                         Case ConsoleColor.DarkYellow : ccRgb = HexColorToArray("808000")
-                                         Case ConsoleColor.Gray : ccRgb = HexColorToArray("C0C0C0")
-                                         Case ConsoleColor.DarkGray : ccRgb = HexColorToArray("808080")
-                                         Case ConsoleColor.Blue : ccRgb = HexColorToArray("0000FF")
-                                         Case ConsoleColor.Green : ccRgb = HexColorToArray("00FF00")
-                                         Case ConsoleColor.Cyan : ccRgb = HexColorToArray("00FFFF")
-                                         Case ConsoleColor.Red : ccRgb = HexColorToArray("FF0000")
-                                         Case ConsoleColor.Magenta : ccRgb = HexColorToArray("FF00FF")
-                                         Case ConsoleColor.Yellow : ccRgb = HexColorToArray("FFFF00")
-                                         Case ConsoleColor.White : ccRgb = HexColorToArray("FFFFFF")
-                                     End Select
-
-                                     d = Math.Sqrt((c.R - ccRgb(0)) ^ 2 + (c.G - ccRgb(1)) ^ 2 + (c.B - ccRgb(2)) ^ 2)
-                                     If d < minD Then
-                                         minD = d
-                                         bestResult = cc
-                                     End If
-                                 Next
-
-                                 Return bestResult
-                             End Function
-
-        ' EGA Palette
-        ' http://stackoverflow.com/questions/1988833/converting-color-to-consolecolor
-        Dim ToConsoleColor2 = Function(c As Color) As ConsoleColor
-                                  Dim index As Integer = If(c.R > 128 Or c.G > 128 Or c.B > 128, 8, 0) ' Bright bit
-                                  index = index Or If(c.R > 64, 4, 0) ' Red bit
-                                  index = index Or If(c.G > 64, 2, 0) ' Green bit
-                                  index = index Or If(c.B > 64, 1, 0) ' Blue bit
-                                  Return CType(index, ConsoleColor)
-                              End Function
-
         str += "Dim x As Integer = Console.CursorLeft"
         str += Environment.NewLine
         str += "Dim y As Integer = Console.CursorTop"
@@ -153,7 +101,7 @@
         For y As Integer = 0 To AsciiArtCtrl.I2A.CanvasSize.Height - 1
             For x = 0 To AsciiArtCtrl.I2A.CanvasSize.Width - 1
                 curChar = AsciiArtCtrl.I2A.Canvas(x)(y).Character
-                curCharColor = ToConsoleColor2(AsciiArtCtrl.I2A.Canvas(x)(y).Color).ToString()
+                curCharColor = Image2Ascii.ToConsoleColorEGA(AsciiArtCtrl.I2A.Canvas(x)(y).Color).ToString()
                 If lastColor <> curCharColor Then
                     str += $"Console.ForegroundColor = ConsoleColor.{curCharColor}"
                     str += Environment.NewLine

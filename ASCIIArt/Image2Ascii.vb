@@ -44,11 +44,13 @@
     Private mFont As New Font("Consolas", 12)
 
     Private lastCanvasSize As Size = New Size(-1, -1)
-
+    Private surfaceGraphics As Graphics
     Private charsetsChars() As String = {" ·:+x#W@", " ░░▒▒▓▓█"}
     Private activeChars As String = charsetsChars(0)
 
     Private mCharSize As Size
+
+    Private Shared c2ccCache As New Dictionary(Of Color, ConsoleColor)
 
     Public Event ImageProcessed(sender As Object, e As EventArgs)
 
@@ -56,7 +58,7 @@
         SetCharSize()
     End Sub
 
-    Public Property CanvasSize As Size
+    Public Property CanvasSize() As Size
         Get
             Return mCanvasSize
         End Get
@@ -68,7 +70,13 @@
         End Set
     End Property
 
-    Public Property Bitmap As Bitmap
+    Public ReadOnly Property DirectBitmap() As DirectBitmap
+        Get
+            Return mBitmap
+        End Get
+    End Property
+
+    Public Property Bitmap() As Bitmap
         Get
             Return mBitmap
         End Get
@@ -78,13 +86,13 @@
         End Set
     End Property
 
-    Public ReadOnly Property Surface As Bitmap
+    Public ReadOnly Property Surface() As Bitmap
         Get
             Return mSurface
         End Get
     End Property
 
-    Public Property GrayScaleMode As GrayscaleModes
+    Public Property GrayScaleMode() As GrayscaleModes
         Get
             Return mGrayScaleMode
         End Get
@@ -94,7 +102,7 @@
         End Set
     End Property
 
-    Public Property Charset As Charsets
+    Public Property Charset() As Charsets
         Get
             Return mCharset
         End Get
@@ -105,7 +113,7 @@
         End Set
     End Property
 
-    Public Property ColorMode As ColorModes
+    Public Property ColorMode() As ColorModes
         Get
             Return mColorMode
         End Get
@@ -115,7 +123,7 @@
         End Set
     End Property
 
-    Public Property ScanMode As ScanModes
+    Public Property ScanMode() As ScanModes
         Get
             Return mScanMode
         End Get
@@ -125,13 +133,13 @@
         End Set
     End Property
 
-    Public ReadOnly Property CharSize As Size
+    Public ReadOnly Property CharSize() As Size
         Get
             Return mCharSize
         End Get
     End Property
 
-    Public Property BackColor As Color
+    Public Property BackColor() As Color
         Get
             Return mBackColor
         End Get
@@ -141,7 +149,7 @@
         End Set
     End Property
 
-    Public Property Font As Font
+    Public Property Font() As Font
         Get
             Return mFont
         End Get
@@ -152,7 +160,7 @@
         End Set
     End Property
 
-    Public ReadOnly Property Canvas As ASCIIChar()()
+    Public ReadOnly Property Canvas() As ASCIIChar()()
         Get
             Return mCanvas
         End Get
@@ -164,7 +172,7 @@
         mCharSize.Height -= 1
     End Sub
 
-    Private Sub ProcessImage()
+    Public Sub ProcessImage(Optional surfaceGraphics As Boolean = True)
         If mBitmap Is Nothing Then Exit Sub
 
         Dim sx As Integer
@@ -174,79 +182,83 @@
 
         If sizeChanged Then
             If mSurface IsNot Nothing Then mSurface.Dispose()
-            mSurface = New DirectBitmap(mCanvasSize.Width * charSize.Width, mCanvasSize.Height * charSize.Height)
+            mSurface = New DirectBitmap(mCanvasSize.Width * CharSize.Width, mCanvasSize.Height * CharSize.Height)
         End If
 
-        Using surfaceGraphics As Graphics = Graphics.FromImage(mSurface)
-            surfaceGraphics.Clear(Me.BackColor)
+        If surfaceGraphics Then
+            Me.surfaceGraphics = Graphics.FromImage(mSurface)
+            Me.surfaceGraphics.Clear(Me.BackColor)
+        End If
 
-            Dim scanStep As Size = New Size(Math.Ceiling(mBitmap.Width / mCanvasSize.Width), Math.Ceiling(mBitmap.Height / mCanvasSize.Height))
-            scanStep.Width += mCanvasSize.Width Mod scanStep.Width
-            scanStep.Height += mCanvasSize.Height Mod scanStep.Height
-            Dim scanStepSize = scanStep.Width * scanStep.Height
+        Dim scanStep As Size = New Size(Math.Ceiling(mBitmap.Width / mCanvasSize.Width), Math.Ceiling(mBitmap.Height / mCanvasSize.Height))
+        'scanStep.Width += mCanvasSize.Width Mod scanStep.Width
+        'scanStep.Height += mCanvasSize.Height Mod scanStep.Height
+        Dim scanStepSize = scanStep.Width * scanStep.Height
 
-            If sizeChanged Then ReDim mCanvas(mCanvasSize.Width - 1)
+        If sizeChanged Then ReDim mCanvas(mCanvasSize.Width - 1)
 
-            For x = 0 To mCanvasSize.Width - 1
-                If sizeChanged Then ReDim mCanvas(x)(mCanvasSize.Height - 1)
-                For y = 0 To mCanvasSize.Height - 1
-                    mCanvas(x)(y) = New ASCIIChar(" ", Me.BackColor)
-                Next
+        For x = 0 To mCanvasSize.Width - 1
+            If sizeChanged Then ReDim mCanvas(x)(mCanvasSize.Height - 1)
+            For y = 0 To mCanvasSize.Height - 1
+                mCanvas(x)(y) = New ASCIIChar(" ", Me.BackColor)
             Next
+        Next
 
-            Dim r As Integer
-            Dim g As Integer
-            Dim b As Integer
-            Dim gray As Integer
+        Dim r As Integer
+        Dim g As Integer
+        Dim b As Integer
+        Dim gray As Integer
 
-            Dim offset As Integer
+        Dim offset As Integer
 
-            For y As Integer = 0 To mBitmap.Height - scanStep.Height - 1 Step scanStep.Height
-                For x As Integer = 0 To mBitmap.Width - scanStep.Width - 1 Step scanStep.Width
-                    If mScanMode = ScanModes.Fast Then
-                        offset = (x + y * mBitmap.Width) * 4
-                        r = mBitmap.Bits(offset + 2)
-                        g = mBitmap.Bits(offset + 1)
-                        b = mBitmap.Bits(offset + 0)
-                    Else
-                        r = 0
-                        g = 0
-                        b = 0
+        For y As Integer = 0 To mBitmap.Height - scanStep.Height - 1 Step scanStep.Height
+            For x As Integer = 0 To mBitmap.Width - scanStep.Width - 1 Step scanStep.Width
+                If mScanMode = ScanModes.Fast Then
+                    offset = (x + y * mBitmap.Width) * 4
+                    r = mBitmap.Bits(offset + 2)
+                    g = mBitmap.Bits(offset + 1)
+                    b = mBitmap.Bits(offset + 0)
+                Else
+                    r = 0
+                    g = 0
+                    b = 0
 
-                        For y1 = y To y + scanStep.Height - 1
-                            For x1 = x To x + scanStep.Width - 1
-                                offset = (x1 + y1 * mBitmap.Width) * 4
+                    For y1 = y To y + scanStep.Height - 1
+                        For x1 = x To x + scanStep.Width - 1
+                            offset = (x1 + y1 * mBitmap.Width) * 4
 
-                                r += mBitmap.Bits(offset + 2)
-                                g += mBitmap.Bits(offset + 1)
-                                b += mBitmap.Bits(offset + 0)
-                            Next
+                            r += mBitmap.Bits(offset + 2)
+                            g += mBitmap.Bits(offset + 1)
+                            b += mBitmap.Bits(offset + 0)
                         Next
+                    Next
 
-                        r /= scanStepSize
-                        g /= scanStepSize
-                        b /= scanStepSize
-                    End If
+                    r /= scanStepSize
+                    g /= scanStepSize
+                    b /= scanStepSize
+                End If
 
-                    sx = x / scanStep.Width
-                    sy = y / scanStep.Height
+                sx = x / scanStep.Width
+                sy = y / scanStep.Height
 
-                    Select Case mColorMode
-                        Case ColorModes.GrayScale
-                            mCanvas(sx)(sy) = New ASCIIChar(ColorToASCII(r, g, b), Color.White)
-                        Case ColorModes.FullGrayScale
-                            gray = ToGrayScale(r, g, b)
-                            mCanvas(sx)(sy) = New ASCIIChar(ColorToASCII(r, g, b), Color.FromArgb(gray, gray, gray))
-                        Case ColorModes.Color
-                            mCanvas(sx)(sy) = New ASCIIChar(ColorToASCII(r, g, b), Color.FromArgb(r, g, b))
-                    End Select
+                Select Case mColorMode
+                    Case ColorModes.GrayScale
+                        mCanvas(sx)(sy) = New ASCIIChar(ColorToASCII(r, g, b), Color.White)
+                    Case ColorModes.FullGrayScale
+                        gray = ToGrayScale(r, g, b)
+                        mCanvas(sx)(sy) = New ASCIIChar(ColorToASCII(r, g, b), Color.FromArgb(gray, gray, gray))
+                    Case ColorModes.Color
+                        mCanvas(sx)(sy) = New ASCIIChar(ColorToASCII(r, g, b), Color.FromArgb(r, g, b))
+                End Select
 
+                If surfaceGraphics Then
                     Using sb As New SolidBrush(mCanvas(sx)(sy).Color)
-                        surfaceGraphics.DrawString(mCanvas(sx)(sy).Character, Me.Font, sb, sx * charSize.Width, sy * charSize.Height)
+                        Me.surfaceGraphics.DrawString(mCanvas(sx)(sy).Character, Me.Font, sb, sx * CharSize.Width, sy * CharSize.Height)
                     End Using
-                Next
+                End If
             Next
-        End Using
+        Next
+        If surfaceGraphics Then Me.surfaceGraphics.Dispose()
 
         lastCanvasSize = mCanvasSize
 
@@ -270,5 +282,60 @@
 
     Private Function ColorToASCII(r As Integer, g As Integer, b As Integer) As Char
         Return activeChars(Math.Floor(ToGrayScale(r, g, b) / (256 / activeChars.Length)))
+    End Function
+
+    Public Shared Function ToConsoleColor(c As Color) As ConsoleColor
+        Dim d As Double
+        Dim minD As Double = Double.MaxValue
+        Dim bestResult As ConsoleColor
+        Dim ccRgb() As Integer = Nothing
+
+        If c2ccCache.ContainsKey(c) Then Return c2ccCache(c)
+
+        For Each cc As ConsoleColor In [Enum].GetValues(GetType(ConsoleColor))
+            Select Case cc
+                Case ConsoleColor.Black : ccRgb = HexColorToArray("000000")
+                Case ConsoleColor.DarkBlue : ccRgb = HexColorToArray("000080")
+                Case ConsoleColor.DarkGreen : ccRgb = HexColorToArray("008000")
+                Case ConsoleColor.DarkCyan : ccRgb = HexColorToArray("008080")
+                Case ConsoleColor.DarkRed : ccRgb = HexColorToArray("800000")
+                Case ConsoleColor.DarkMagenta : ccRgb = HexColorToArray("800080")
+                Case ConsoleColor.DarkYellow : ccRgb = HexColorToArray("808000")
+                Case ConsoleColor.Gray : ccRgb = HexColorToArray("C0C0C0")
+                Case ConsoleColor.DarkGray : ccRgb = HexColorToArray("808080")
+                Case ConsoleColor.Blue : ccRgb = HexColorToArray("0000FF")
+                Case ConsoleColor.Green : ccRgb = HexColorToArray("00FF00")
+                Case ConsoleColor.Cyan : ccRgb = HexColorToArray("00FFFF")
+                Case ConsoleColor.Red : ccRgb = HexColorToArray("FF0000")
+                Case ConsoleColor.Magenta : ccRgb = HexColorToArray("FF00FF")
+                Case ConsoleColor.Yellow : ccRgb = HexColorToArray("FFFF00")
+                Case ConsoleColor.White : ccRgb = HexColorToArray("FFFFFF")
+            End Select
+
+            d = Math.Sqrt((c.R - ccRgb(0)) ^ 2 + (c.G - ccRgb(1)) ^ 2 + (c.B - ccRgb(2)) ^ 2)
+            If d < minD Then
+                minD = d
+                bestResult = cc
+            End If
+        Next
+
+        c2ccCache.Add(c, bestResult)
+        Return bestResult
+    End Function
+
+    ' EGA Palette
+    ' http://stackoverflow.com/questions/1988833/converting-color-to-consolecolor
+    Public Shared Function ToConsoleColorEGA(c As Color) As ConsoleColor
+        Dim index As Integer = If(c.R > 128 Or c.G > 128 Or c.B > 128, 8, 0) ' Bright bit
+        index = index Or If(c.R > 64, 4, 0) ' Red bit
+        index = index Or If(c.G > 64, 2, 0) ' Green bit
+        index = index Or If(c.B > 64, 1, 0) ' Blue bit
+        Return CType(index, ConsoleColor)
+    End Function
+
+    Public Shared Function HexColorToArray(hexColor As String) As Integer()
+        Return {Integer.Parse(hexColor.Substring(0, 2), Globalization.NumberStyles.HexNumber),
+                Integer.Parse(hexColor.Substring(2, 2), Globalization.NumberStyles.HexNumber),
+                Integer.Parse(hexColor.Substring(4, 2), Globalization.NumberStyles.HexNumber)}
     End Function
 End Class
