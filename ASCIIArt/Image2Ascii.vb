@@ -3,6 +3,8 @@
         GrayScale
         FullGrayScale
         Color
+        DitheredGrayScale
+        DitheredColor
     End Enum
 
     Public Enum ScanModes
@@ -40,6 +42,8 @@
     Private mCharset As Charsets = Charsets.Standard
     Private mGrayScaleMode As GrayscaleModes = GrayscaleModes.Average
     Private mBackColor As Color = Color.Black
+
+    Private mDitherColors As Integer = 2
 
     Private mFont As New Font("Consolas", 12)
 
@@ -160,6 +164,20 @@
         End Set
     End Property
 
+    Public Property DitherColors As Integer
+        Get
+            Return mDitherColors
+        End Get
+        Set(value As Integer)
+            If value >= 2 Then
+                mDitherColors = value
+                ProcessImage()
+            Else
+                ' Throw New ArgumentOutOfRangeException($"{NameOf(DitherColors)} must be 2 or larger")
+            End If
+        End Set
+    End Property
+
     Public ReadOnly Property Canvas() As ASCIIChar()()
         Get
             Return mCanvas
@@ -207,6 +225,22 @@
         Dim r As Integer
         Dim g As Integer
         Dim b As Integer
+
+        Dim dr As Integer
+        Dim dg As Integer
+        Dim db As Integer
+        Dim dColorFactor As Integer = mDitherColors - 1
+        Dim dFactor As Double = 255 / dColorFactor
+        Dim quantaError(3 - 1) As Double
+        Dim ApplyQuantaError = Sub(qx As Integer, qy As Integer, qr As Integer, qg As Integer, qb As Integer, w As Double)
+                                   If qx < 0 OrElse qx >= mCanvasSize.Width OrElse
+                                       qy < 0 OrElse qy >= mCanvasSize.Height Then Exit Sub
+                                   qr += quantaError(0) * w
+                                   qg += quantaError(1) * w
+                                   qb += quantaError(2) * w
+                                   mCanvas(qx)(qy) = New ASCIIChar(ColorToASCII(qr, qg, qb), Color.FromArgb(qr, qg, qb))
+                               End Sub
+
         Dim gray As Integer
 
         Dim offset As Integer
@@ -249,6 +283,27 @@
                         mCanvas(sx)(sy) = New ASCIIChar(ColorToASCII(r, g, b), Color.FromArgb(gray, gray, gray))
                     Case ColorModes.Color
                         mCanvas(sx)(sy) = New ASCIIChar(ColorToASCII(r, g, b), Color.FromArgb(r, g, b))
+                    Case ColorModes.DitheredGrayScale, ColorModes.DitheredColor
+                        ' https://en.wikipedia.org/wiki/Floyd%E2%80%93Steinberg_dithering
+                        If mColorMode = ColorModes.DitheredGrayScale Then
+                            r = ToGrayScale(r, g, b)
+                            g = r
+                            b = r
+                        End If
+                        dr = Math.Round(dColorFactor * r / 255) * dFactor
+                        dg = Math.Round(dColorFactor * g / 255) * dFactor
+                        db = Math.Round(dColorFactor * b / 255) * dFactor
+
+                        mCanvas(sx)(sy) = New ASCIIChar(ColorToASCII(dr, dg, db), Color.FromArgb(dr, dg, db))
+
+                        quantaError = {Math.Max(0, CInt(r) - dr),
+                                       Math.Max(0, CInt(g) - dg),
+                                       Math.Max(0, CInt(b) - db)}
+
+                        ApplyQuantaError(sx + 1, sy, dr, dg, db, 7 / 16)
+                        ApplyQuantaError(sx - 1, sy + 1, dr, dg, db, 3 / 16)
+                        ApplyQuantaError(sx, sy + 1, dr, dg, db, 5 / 16)
+                        ApplyQuantaError(sx + 1, sy + 1, dr, dg, db, 1 / 16)
                 End Select
 
                 If surfaceGraphics Then
@@ -269,6 +324,10 @@
         Return ColorToASCII(color.R, color.G, color.B)
     End Function
 
+    Private Function ColorToASCII(r As Integer, g As Integer, b As Integer) As Char
+        Return activeChars(Math.Floor(ToGrayScale(r, g, b) / (256 / activeChars.Length)))
+    End Function
+
     Private Function ToGrayScale(r As Integer, g As Integer, b As Integer) As Double
         Select Case mGrayScaleMode
             Case GrayscaleModes.Accuarte
@@ -278,10 +337,6 @@
             Case Else
                 Return 0
         End Select
-    End Function
-
-    Private Function ColorToASCII(r As Integer, g As Integer, b As Integer) As Char
-        Return activeChars(Math.Floor(ToGrayScale(r, g, b) / (256 / activeChars.Length)))
     End Function
 
     Public Shared Function ToConsoleColor(c As Color) As ConsoleColor

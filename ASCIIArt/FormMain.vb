@@ -27,9 +27,24 @@
         AddItems(ComboBoxGrayScaleMode, GetType(Image2Ascii.GrayscaleModes), AsciiArtCtrl.I2A.GrayScaleMode)
 
         AddHandler ComboBoxCharset.SelectedIndexChanged, Sub() [Enum].TryParse(ComboBoxCharset.SelectedItem.ToString(), AsciiArtCtrl.I2A.Charset)
-        AddHandler ComboBoxColorMode.SelectedIndexChanged, Sub() [Enum].TryParse(ComboBoxColorMode.SelectedItem.ToString(), AsciiArtCtrl.I2A.ColorMode)
+        AddHandler ComboBoxColorMode.SelectedIndexChanged, Sub()
+                                                               [Enum].TryParse(ComboBoxColorMode.SelectedItem.ToString(), AsciiArtCtrl.I2A.ColorMode)
+                                                               Select Case AsciiArtCtrl.I2A.ColorMode
+                                                                   Case Image2Ascii.ColorModes.DitheredColor
+                                                                       TextBoxDitherColors.Enabled = True
+                                                                       LabelDither.Text = "Dither Colors"
+                                                                   Case Image2Ascii.ColorModes.DitheredGrayScale
+                                                                       TextBoxDitherColors.Enabled = True
+                                                                       LabelDither.Text = "Dither Shades"
+                                                                   Case Else
+                                                                       TextBoxDitherColors.Enabled = False
+                                                               End Select
+                                                           End Sub
         AddHandler ComboBoxScanMode.SelectedIndexChanged, Sub() [Enum].TryParse(ComboBoxScanMode.SelectedItem.ToString(), AsciiArtCtrl.I2A.ScanMode)
         AddHandler ComboBoxGrayScaleMode.SelectedIndexChanged, Sub() [Enum].TryParse(ComboBoxGrayScaleMode.SelectedItem.ToString(), AsciiArtCtrl.I2A.GrayScaleMode)
+        AddHandler TextBoxDitherColors.TextChanged, Sub() Integer.TryParse(TextBoxDitherColors.Text, AsciiArtCtrl.I2A.DitherColors)
+
+        TextBoxDitherColors.Enabled = False
     End Sub
 
     Private Sub AsciiArtCtrl_DragOver(sender As Object, e As DragEventArgs) Handles AsciiArtCtrl.DragOver

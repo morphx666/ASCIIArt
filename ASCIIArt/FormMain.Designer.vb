@@ -32,6 +32,8 @@ Partial Class FormMain
         Me.Label4 = New System.Windows.Forms.Label()
         Me.AsciiArtCtrl = New ASCIIArt.ASCIIArtCtrl()
         Me.ButtonExport = New System.Windows.Forms.Button()
+        Me.LabelDither = New System.Windows.Forms.Label()
+        Me.TextBoxDitherColors = New System.Windows.Forms.TextBox()
         Me.SuspendLayout()
         '
         'ComboBoxCharset
@@ -117,15 +119,8 @@ Partial Class FormMain
             Or System.Windows.Forms.AnchorStyles.Left) _
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.AsciiArtCtrl.BackColor = System.Drawing.Color.Black
-        Me.AsciiArtCtrl.I2A.Bitmap = Nothing
-        Me.AsciiArtCtrl.I2A.CanvasSize = New System.Drawing.Size(80, 25)
-        Me.AsciiArtCtrl.I2A.Charset = Image2Ascii.Charsets.Standard
-        Me.AsciiArtCtrl.I2A.ColorMode = Image2Ascii.ColorModes.GrayScale
-        Me.AsciiArtCtrl.I2A.Font = New System.Drawing.Font("Lucida Console", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.AsciiArtCtrl.I2A.GrayScaleMode = Image2Ascii.GrayscaleModes.Accuarte
         Me.AsciiArtCtrl.Location = New System.Drawing.Point(12, 52)
         Me.AsciiArtCtrl.Name = "AsciiArtCtrl"
-        Me.AsciiArtCtrl.I2A.ScanMode = Image2Ascii.ScanModes.Fast
         Me.AsciiArtCtrl.Size = New System.Drawing.Size(868, 529)
         Me.AsciiArtCtrl.TabIndex = 0
         '
@@ -139,11 +134,31 @@ Partial Class FormMain
         Me.ButtonExport.Text = "Export"
         Me.ButtonExport.UseVisualStyleBackColor = True
         '
+        'LabelDither
+        '
+        Me.LabelDither.AutoSize = True
+        Me.LabelDither.Location = New System.Drawing.Point(517, 9)
+        Me.LabelDither.Name = "LabelDither"
+        Me.LabelDither.Size = New System.Drawing.Size(75, 13)
+        Me.LabelDither.TabIndex = 5
+        Me.LabelDither.Text = "Dither Colors"
+        '
+        'TextBoxDitherColors
+        '
+        Me.TextBoxDitherColors.Location = New System.Drawing.Point(520, 25)
+        Me.TextBoxDitherColors.Name = "TextBoxDitherColors"
+        Me.TextBoxDitherColors.Size = New System.Drawing.Size(86, 22)
+        Me.TextBoxDitherColors.TabIndex = 6
+        Me.TextBoxDitherColors.Text = "2"
+        Me.TextBoxDitherColors.TextAlign = System.Windows.Forms.HorizontalAlignment.Right
+        '
         'FormMain
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.ClientSize = New System.Drawing.Size(892, 593)
+        Me.Controls.Add(Me.TextBoxDitherColors)
+        Me.Controls.Add(Me.LabelDither)
         Me.Controls.Add(Me.ButtonExport)
         Me.Controls.Add(Me.Label4)
         Me.Controls.Add(Me.Label3)
@@ -171,4 +186,6 @@ Partial Class FormMain
     Friend WithEvents Label3 As System.Windows.Forms.Label
     Friend WithEvents Label4 As System.Windows.Forms.Label
     Friend WithEvents ButtonExport As Button
+    Friend WithEvents LabelDither As Label
+    Friend WithEvents TextBoxDitherColors As TextBox
 End Class
