@@ -64,7 +64,9 @@
     Private Sub AsciiArtCtrl_DragDrop(sender As Object, e As DragEventArgs) Handles AsciiArtCtrl.DragDrop
         If e.Effect = DragDropEffects.Copy Then
             Dim bmp As Bitmap = Bitmap.FromFile(CType(e.Data.GetData("FileDrop"), String())(0))
-            AsciiArtCtrl.I2A.CanvasSize = New Size(AsciiArtCtrl.Width / AsciiArtCtrl.I2A.CharSize.Width, AsciiArtCtrl.Height / AsciiArtCtrl.I2A.CharSize.Height)
+            Dim ar As Double = bmp.Width / bmp.Height
+            AsciiArtCtrl.I2A.CanvasSize = New Size(AsciiArtCtrl.Width / AsciiArtCtrl.I2A.CharSize.Width * ar,
+                                                   AsciiArtCtrl.Height / AsciiArtCtrl.I2A.CharSize.Height)
             AsciiArtCtrl.I2A.Bitmap = bmp
         End If
     End Sub

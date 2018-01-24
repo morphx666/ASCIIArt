@@ -222,10 +222,12 @@
             Next
         Next
 
+        ' Source color
         Dim r As Integer
         Dim g As Integer
         Dim b As Integer
 
+        ' Dithered Color
         Dim dr As Integer
         Dim dg As Integer
         Dim db As Integer
@@ -241,6 +243,7 @@
                                    mCanvas(qx)(qy) = New ASCIIChar(ColorToASCII(qr, qg, qb), Color.FromArgb(qr, qg, qb))
                                End Sub
 
+        ' For gray scale modes
         Dim gray As Integer
 
         Dim offset As Integer
