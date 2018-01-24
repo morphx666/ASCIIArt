@@ -44,7 +44,25 @@
         AddHandler ComboBoxGrayScaleMode.SelectedIndexChanged, Sub() [Enum].TryParse(ComboBoxGrayScaleMode.SelectedItem.ToString(), AsciiArtCtrl.I2A.GrayScaleMode)
         AddHandler TextBoxDitherColors.TextChanged, Sub() Integer.TryParse(TextBoxDitherColors.Text, AsciiArtCtrl.I2A.DitherColors)
 
+        For i As Integer = 1 To 32
+            ComboBoxFontSize.Items.Add(i)
+        Next
+        ComboBoxFontSize.SelectedItem = 12
+        AddHandler ComboBoxFontSize.SelectedIndexChanged, Sub()
+                                                              AsciiArtCtrl.I2A.Font = New Font(AsciiArtCtrl.I2A.Font.FontFamily,
+                                                                                                 CInt(ComboBoxFontSize.SelectedItem),
+                                                                                                 GraphicsUnit.Pixel)
+                                                              If AsciiArtCtrl.I2A.Bitmap IsNot Nothing Then SetBitmap(AsciiArtCtrl.I2A.Bitmap)
+                                                          End Sub
+
         TextBoxDitherColors.Enabled = False
+    End Sub
+
+    Private Sub SetBitmap(bmp As Bitmap)
+        Dim ar As Double = bmp.Width / bmp.Height
+        AsciiArtCtrl.I2A.CanvasSize = New Size(AsciiArtCtrl.Width / AsciiArtCtrl.I2A.CharSize.Width * ar,
+                                               AsciiArtCtrl.Height / AsciiArtCtrl.I2A.CharSize.Height)
+        AsciiArtCtrl.I2A.Bitmap = bmp
     End Sub
 
     Private Sub AsciiArtCtrl_DragOver(sender As Object, e As DragEventArgs) Handles AsciiArtCtrl.DragOver
@@ -64,10 +82,7 @@
     Private Sub AsciiArtCtrl_DragDrop(sender As Object, e As DragEventArgs) Handles AsciiArtCtrl.DragDrop
         If e.Effect = DragDropEffects.Copy Then
             Dim bmp As Bitmap = Bitmap.FromFile(CType(e.Data.GetData("FileDrop"), String())(0))
-            Dim ar As Double = bmp.Width / bmp.Height
-            AsciiArtCtrl.I2A.CanvasSize = New Size(AsciiArtCtrl.Width / AsciiArtCtrl.I2A.CharSize.Width * ar,
-                                                   AsciiArtCtrl.Height / AsciiArtCtrl.I2A.CharSize.Height)
-            AsciiArtCtrl.I2A.Bitmap = bmp
+            SetBitmap(bmp)
         End If
     End Sub
 

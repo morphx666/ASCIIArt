@@ -45,13 +45,14 @@
 
     Private mDitherColors As Integer = 2
 
-    Private mFont As New Font("Consolas", 12)
+    Private mFont As New Font("Consolas", 12, GraphicsUnit.Pixel)
 
     Private lastCanvasSize As Size = New Size(-1, -1)
     Private surfaceGraphics As Graphics
     Private charsetsChars() As String = {" ·:+x#W@", " ░░▒▒▓▓█"}
     Private activeChars As String = charsetsChars(0)
 
+    Private mChatOffset As Point
     Private mCharSize As Size
 
     Private Shared c2ccCache As New Dictionary(Of Color, ConsoleColor)
@@ -158,7 +159,7 @@
             Return mFont
         End Get
         Set(value As Font)
-            mFont = Font
+            mFont = value
             SetCharSize()
             ProcessImage()
         End Set
@@ -185,9 +186,46 @@
     End Property
 
     Private Sub SetCharSize()
-        mCharSize = TextRenderer.MeasureText("X", mFont)
-        mCharSize.Width -= 8
-        mCharSize.Height -= 1
+        Dim IsBlack = Function(c As Color) As Boolean
+                          Return c.R = 0 AndAlso c.G = 0 AndAlso c.B = 0
+                      End Function
+
+        Using bmp As New DirectBitmap(100, 100)
+            Using g As Graphics = Graphics.FromImage(bmp)
+                g.InterpolationMode = Drawing2D.InterpolationMode.NearestNeighbor
+                g.PixelOffsetMode = Drawing2D.PixelOffsetMode.None
+                g.SmoothingMode = Drawing2D.SmoothingMode.None
+
+                g.Clear(Color.Black)
+                g.DrawString("█", mFont, Brushes.White, 0, 0)
+            End Using
+
+            Dim lt As Point
+            Dim rb As Point
+
+            For y As Integer = 0 To bmp.Height - 1
+                For x As Integer = 0 To bmp.Width - 1
+                    If Not IsBlack(bmp.Pixel(x, y)) Then
+                        lt = New Point(x, y)
+                        y = bmp.Height
+                        Exit For
+                    End If
+                Next
+            Next
+
+            For y As Integer = bmp.Height - 1 To 0 Step -1
+                For x As Integer = bmp.Width - 1 To 0 Step -1
+                    If Not IsBlack(bmp.Pixel(x, y)) Then
+                        rb = New Point(x, y)
+                        y = 0
+                        Exit For
+                    End If
+                Next
+            Next
+
+            mCharSize = New Size(rb.X - lt.X, rb.Y - lt.Y)
+            If mCharSize.Width > 1 Then mCharSize.Width -= 1
+        End Using
     End Sub
 
     Public Sub ProcessImage(Optional surfaceGraphics As Boolean = True)

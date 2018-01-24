@@ -30,10 +30,12 @@ Partial Class FormMain
         Me.Label2 = New System.Windows.Forms.Label()
         Me.Label3 = New System.Windows.Forms.Label()
         Me.Label4 = New System.Windows.Forms.Label()
-        Me.AsciiArtCtrl = New ASCIIArt.ASCIIArtCtrl()
         Me.ButtonExport = New System.Windows.Forms.Button()
         Me.LabelDither = New System.Windows.Forms.Label()
         Me.TextBoxDitherColors = New System.Windows.Forms.TextBox()
+        Me.Label5 = New System.Windows.Forms.Label()
+        Me.ComboBoxFontSize = New System.Windows.Forms.ComboBox()
+        Me.AsciiArtCtrl = New ASCIIArt.ASCIIArtCtrl()
         Me.SuspendLayout()
         '
         'ComboBoxCharset
@@ -112,18 +114,6 @@ Partial Class FormMain
         Me.Label4.TabIndex = 3
         Me.Label4.Text = "GrayScale Mode"
         '
-        'AsciiArtCtrl
-        '
-        Me.AsciiArtCtrl.AllowDrop = True
-        Me.AsciiArtCtrl.Anchor = CType((((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Bottom) _
-            Or System.Windows.Forms.AnchorStyles.Left) _
-            Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.AsciiArtCtrl.BackColor = System.Drawing.Color.Black
-        Me.AsciiArtCtrl.Location = New System.Drawing.Point(12, 52)
-        Me.AsciiArtCtrl.Name = "AsciiArtCtrl"
-        Me.AsciiArtCtrl.Size = New System.Drawing.Size(868, 529)
-        Me.AsciiArtCtrl.TabIndex = 0
-        '
         'ButtonExport
         '
         Me.ButtonExport.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
@@ -152,11 +142,44 @@ Partial Class FormMain
         Me.TextBoxDitherColors.Text = "2"
         Me.TextBoxDitherColors.TextAlign = System.Windows.Forms.HorizontalAlignment.Right
         '
+        'Label5
+        '
+        Me.Label5.AutoSize = True
+        Me.Label5.Location = New System.Drawing.Point(609, 9)
+        Me.Label5.Name = "Label5"
+        Me.Label5.Size = New System.Drawing.Size(89, 13)
+        Me.Label5.TabIndex = 7
+        Me.Label5.Text = "GrayScale Mode"
+        '
+        'ComboBoxFontSize
+        '
+        Me.ComboBoxFontSize.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
+        Me.ComboBoxFontSize.FlatStyle = System.Windows.Forms.FlatStyle.Flat
+        Me.ComboBoxFontSize.FormattingEnabled = True
+        Me.ComboBoxFontSize.Location = New System.Drawing.Point(612, 25)
+        Me.ComboBoxFontSize.Name = "ComboBoxFontSize"
+        Me.ComboBoxFontSize.Size = New System.Drawing.Size(121, 21)
+        Me.ComboBoxFontSize.TabIndex = 8
+        '
+        'AsciiArtCtrl
+        '
+        Me.AsciiArtCtrl.AllowDrop = True
+        Me.AsciiArtCtrl.Anchor = CType((((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Bottom) _
+            Or System.Windows.Forms.AnchorStyles.Left) _
+            Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+        Me.AsciiArtCtrl.BackColor = System.Drawing.Color.Black
+        Me.AsciiArtCtrl.Location = New System.Drawing.Point(12, 52)
+        Me.AsciiArtCtrl.Name = "AsciiArtCtrl"
+        Me.AsciiArtCtrl.Size = New System.Drawing.Size(868, 529)
+        Me.AsciiArtCtrl.TabIndex = 0
+        '
         'FormMain
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.ClientSize = New System.Drawing.Size(892, 593)
+        Me.Controls.Add(Me.ComboBoxFontSize)
+        Me.Controls.Add(Me.Label5)
         Me.Controls.Add(Me.TextBoxDitherColors)
         Me.Controls.Add(Me.LabelDither)
         Me.Controls.Add(Me.ButtonExport)
@@ -188,4 +211,6 @@ Partial Class FormMain
     Friend WithEvents ButtonExport As Button
     Friend WithEvents LabelDither As Label
     Friend WithEvents TextBoxDitherColors As TextBox
+    Friend WithEvents Label5 As Label
+    Friend WithEvents ComboBoxFontSize As ComboBox
 End Class
