@@ -147,9 +147,9 @@ Partial Class FormMain
         Me.Label5.AutoSize = True
         Me.Label5.Location = New System.Drawing.Point(609, 9)
         Me.Label5.Name = "Label5"
-        Me.Label5.Size = New System.Drawing.Size(89, 13)
+        Me.Label5.Size = New System.Drawing.Size(54, 13)
         Me.Label5.TabIndex = 7
-        Me.Label5.Text = "GrayScale Mode"
+        Me.Label5.Text = "Font Size"
         '
         'ComboBoxFontSize
         '
