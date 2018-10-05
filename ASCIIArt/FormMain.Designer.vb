@@ -139,7 +139,7 @@ Partial Class FormMain
         Me.TextBoxDitherColors.Name = "TextBoxDitherColors"
         Me.TextBoxDitherColors.Size = New System.Drawing.Size(86, 22)
         Me.TextBoxDitherColors.TabIndex = 6
-        Me.TextBoxDitherColors.Text = "2"
+        Me.TextBoxDitherColors.Text = "8"
         Me.TextBoxDitherColors.TextAlign = System.Windows.Forms.HorizontalAlignment.Right
         '
         'Label5

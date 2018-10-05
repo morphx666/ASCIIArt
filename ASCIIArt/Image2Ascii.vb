@@ -43,7 +43,7 @@
     Private mGrayScaleMode As GrayscaleModes = GrayscaleModes.Average
     Private mBackColor As Color = Color.Black
 
-    Private mDitherColors As Integer = 2
+    Private mDitherColors As Integer = 8
 
     Private mFont As New Font("Consolas", 12, GraphicsUnit.Pixel)
 
@@ -234,11 +234,19 @@
         Dim sx As Integer
         Dim sy As Integer
 
-        Dim sizeChanged As Boolean = (lastCanvasSize <> mCanvasSize)
+        If lastCanvasSize <> mCanvasSize Then
+            lastCanvasSize = mCanvasSize
 
-        If sizeChanged Then
             If mSurface IsNot Nothing Then mSurface.Dispose()
             mSurface = New DirectBitmap(mCanvasSize.Width * CharSize.Width, mCanvasSize.Height * CharSize.Height)
+
+            ReDim mCanvas(mCanvasSize.Width - 1)
+            For x = 0 To mCanvasSize.Width - 1
+                ReDim mCanvas(x)(mCanvasSize.Height - 1)
+                For y = 0 To mCanvasSize.Height - 1
+                    mCanvas(x)(y) = New ASCIIChar(" ", Me.BackColor)
+                Next
+            Next
         End If
 
         If surfaceGraphics Then
@@ -250,15 +258,6 @@
         'scanStep.Width += mCanvasSize.Width Mod scanStep.Width
         'scanStep.Height += mCanvasSize.Height Mod scanStep.Height
         Dim scanStepSize = scanStep.Width * scanStep.Height
-
-        If sizeChanged Then ReDim mCanvas(mCanvasSize.Width - 1)
-
-        For x = 0 To mCanvasSize.Width - 1
-            If sizeChanged Then ReDim mCanvas(x)(mCanvasSize.Height - 1)
-            For y = 0 To mCanvasSize.Height - 1
-                mCanvas(x)(y) = New ASCIIChar(" ", Me.BackColor)
-            Next
-        Next
 
         ' Source color
         Dim r As Integer
@@ -337,9 +336,9 @@
 
                         mCanvas(sx)(sy) = New ASCIIChar(ColorToASCII(dr, dg, db), Color.FromArgb(dr, dg, db))
 
-                        quantaError = {Math.Max(0, CInt(r) - dr),
-                                       Math.Max(0, CInt(g) - dg),
-                                       Math.Max(0, CInt(b) - db)}
+                        quantaError = {Math.Max(0, r - dr),
+                                       Math.Max(0, g - dg),
+                                       Math.Max(0, b - db)}
 
                         ApplyQuantaError(sx + 1, sy, dr, dg, db, 7 / 16)
                         ApplyQuantaError(sx - 1, sy + 1, dr, dg, db, 3 / 16)
@@ -355,8 +354,6 @@
             Next
         Next
         If surfaceGraphics Then Me.surfaceGraphics.Dispose()
-
-        lastCanvasSize = mCanvasSize
 
         RaiseEvent ImageProcessed(Me, New EventArgs())
     End Sub
@@ -374,7 +371,7 @@
             Case GrayscaleModes.Accuarte
                 Return r * 0.2126 + g * 0.7152 + b * 0.0722
             Case GrayscaleModes.Average
-                Return r * 1 / 3 + g * 1 / 3 + b * 1 / 3
+                Return r / 3 + g / 3 + b / 3
             Case Else
                 Return 0
         End Select

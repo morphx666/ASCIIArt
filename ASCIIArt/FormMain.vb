@@ -153,13 +153,16 @@
 
     Private Sub SaveTextFile(fileName As String)
         Dim str As String = ""
+
+        If IO.File.Exists(fileName) Then IO.File.Delete(fileName)
+
         For y As Integer = 0 To AsciiArtCtrl.I2A.CanvasSize.Height - 1
             For x = 0 To AsciiArtCtrl.I2A.CanvasSize.Width - 1
                 str += AsciiArtCtrl.I2A.Canvas(x)(y).Character
             Next
             str += Environment.NewLine
+            IO.File.AppendAllText(fileName, str)
+            str = ""
         Next
-
-        IO.File.WriteAllText(fileName, str)
     End Sub
 End Class
