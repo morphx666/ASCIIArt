@@ -35,17 +35,17 @@
     Private mBitmap As DirectBitmap
     Private mSurface As Bitmap
 
-    Private mCanvasSize As Size = New Size(80, 25)
+    Private mCanvasSize As Size
     Private mCanvas()() As ASCIIChar
-    Private mColorMode As ColorModes = ColorModes.GrayScale
-    Private mScanMode As ScanModes = ScanModes.Fast
-    Private mCharset As Charsets = Charsets.Standard
-    Private mGrayScaleMode As GrayscaleModes = GrayscaleModes.Average
-    Private mBackColor As Color = Color.Black
+    Private mColorMode As ColorModes
+    Private mScanMode As ScanModes
+    Private mCharset As Charsets
+    Private mGrayScaleMode As GrayscaleModes
+    Private mBackColor As Color
 
     Private mDitherColors As Integer = 8
 
-    Private mFont As New Font("Consolas", 12, GraphicsUnit.Pixel)
+    Private mFont As Font
 
     Private lastCanvasSize As Size = New Size(-1, -1)
     Private surfaceGraphics As Graphics
@@ -60,6 +60,13 @@
     Public Event ImageProcessed(sender As Object, e As EventArgs)
 
     Public Sub New()
+        mCanvasSize = New Size(80, 25)
+        mColorMode = ColorModes.GrayScale
+        mScanMode = ScanModes.Fast
+        mCharset = Charsets.Standard
+        mGrayScaleMode = GrayscaleModes.Average
+        mBackColor = Color.Black
+        mFont = New Font("Consolas", 12, GraphicsUnit.Pixel)
         SetCharSize()
     End Sub
 
